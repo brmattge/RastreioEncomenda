@@ -1,0 +1,180 @@
+﻿@page
+@model EncomendasModel
+@{
+    ViewData["Title"] = "Encomendas";
+}
+
+<style>
+
+    .spacing {
+        margin-bottom: 15px;
+    }
+
+    .bar {
+        padding: 15px;
+        border: 1px solid rgba(0,0,0,.125);
+        border-radius: .25rem;
+    }
+
+</style>
+
+<div class="container spacing">
+    <div class="row bar">
+        <div class="col-sm-3 align-self-center">
+            <div class="form-group">
+                <label for="Pessoa" class="form-label">Pessoa</label>
+                <select class="form-control" id="Pessoa">
+                    <option data-select2-id="null">Selecione</option>
+                    <option data-select2-id="Enviado">Enviado</option>
+                    <option data-select2-id="Entregue">Entregue</option>
+                </select>
+            </div>
+        </div>
+        <div class="col align-self-end">
+            <div class="form-group">
+                <button type="button" class="btn btn-secondary">Buscar</button>
+                <button type="button" class="btn btn-primary">Novo</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label for="Pedido" class="form-label">Pedido</label>
+                <input class="form-control" id="Pedido">
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label for="Cep" class="form-label">CEP</label>
+                <input class="form-control" id="Cep">
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label for="Logradouro" class="form-label">Logradouro</label>
+                <input class="form-control" id="Logradouro">
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label for="Numero" class="form-label">Número</label>
+                <input class="form-control" id="Numero">
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label for="Complemento" class="form-label">Complemento</label>
+                <input class="form-control" id="Complemento">
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label for="Bairro" class="form-label">Bairro</label>
+                <input class="form-control" id="Bairro">
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label for="Cidade" class="form-label">Cidade</label>
+                <input class="form-control" id="Cidade">
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label for="Estado" class="form-label">Estado</label>
+                <input class="form-control" id="Estado">
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label>Status</label>
+                <select class="form-control" id="Status">
+                    <option data-select2-id="null">Selecione</option>
+                    <option data-select2-id="Enviado">Enviado</option>
+                    <option data-select2-id="Entregue">Entregue</option>
+                </select>
+            </div>
+        </div>
+        <div class="col align-self-end">
+            <div class="form-group">
+                <button type="button" class="btn btn-primary">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link href="~/lib/select2/css/select2.min.css" rel="stylesheet"/>
+<link href="https://raw.githack.com/ttskch/select2-bootstrap4-theme/master/dist/select2-bootstrap4.css" rel="stylesheet">
+
+@section Scripts
+{
+    <script src="~/lib/select2/js/select2.full.min.js"></script>
+    
+    <script type="text/javascript">
+
+        $("#Status").select2({
+            theme: "bootstrap4",
+            minimumResultsForSearch: -1
+        });
+
+        $("#Pessoa").select2({
+            theme: "bootstrap4"
+        });
+
+        $(document).ready(function () {
+
+            function limpa_formulário_cep() {
+                $("#Logradouro").val("");
+                $("#Bairro").val("");
+                $("#Cidade").val("");
+                $("#Estado").val("");
+            }
+
+            $("#Cep").blur(function () {
+                var cep = $(this).val().replace(/\D/g, '');
+                if (cep != "") {
+
+                    var validacep = /^[0-9]{8}$/;
+
+                    if (validacep.test(cep)) {
+
+                        $("#Logradouro").val("...");
+                        $("#Bairro").val("...");
+                        $("#Cidade").val("...");
+                        $("#Estado").val("...");
+
+                        $.ajax({
+                            url: "api/Localidades/SelecionarPorId/" + cep + "",
+                            type: "GET",
+                            error: function (ret) {
+                                console.log(ret);
+                                limpa_formulário_cep();
+                                alert("CEP não encontrado.");
+                            },
+                            success: function (ret) {
+                                console.log(ret);
+                                $("#Logradouro").val(ret.logradouro);
+                                $("#Bairro").val(ret.bairro);
+                                $("#Cidade").val(ret.cidade);
+                                $("#Estado").val(ret.estado);
+                            }
+                        });
+                    }
+                    else {
+                        limpa_formulário_cep();
+                        alert("Formato de CEP inválido.");
+                    }
+                }
+                else {
+                    limpa_formulário_cep();
+                }
+            });
+
+        });
+
+    </script>
+}

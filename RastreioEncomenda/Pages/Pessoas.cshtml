@@ -1,0 +1,158 @@
+﻿@page
+@model PessoasModel
+@{
+    ViewData["Title"] = "Pessoas";
+}
+
+<style>
+
+    .spacing {
+        margin-bottom: 15px;
+    }
+
+    .bar {
+        padding: 15px;
+        border: 1px solid rgba(0,0,0,.125);
+        border-radius: .25rem;
+    }
+</style>
+
+<div class="container spacing">
+    <div class="row bar">
+        <div class="col-sm-3 align-self-center">
+            <div class="form-group">
+                <label for="Pessoa" class="form-label">Pessoa</label>
+                <select class="form-control" id="Pessoa">
+                    <option value="null">Selecione</option>
+                </select>
+            </div>
+        </div>
+        <div class="col align-self-end">
+            <div class="form-group">
+                <button type="button" class="btn btn-secondary" id="Buscar">Buscar</button>
+                <button type="button" class="btn btn-primary" id="Nova">Nova</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label for="Nome" class="form-label">Nome</label>
+                <input class="form-control" id="Nome">
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label for="Cpf" class="form-label">CPF</label>
+                <input class="form-control" id="Cpf">
+            </div>
+        </div>
+        <div class="col align-self-end">
+            <div class="form-group">
+                <button type="button" class="btn btn-primary" id="Salvar">Salvar</button>
+                <button type="button" class="btn btn-danger" id="Excluir">Excluir</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link href="~/lib/select2/css/select2.min.css" rel="stylesheet" />
+<link href="https://raw.githack.com/ttskch/select2-bootstrap4-theme/master/dist/select2-bootstrap4.css" rel="stylesheet">
+
+@section Scripts
+{
+    <script src="~/lib/select2/js/select2.full.min.js"></script>
+
+    <script type="text/javascript">
+
+        $("#Pessoa").select2({
+            theme: "bootstrap4",
+            language: {
+                searching: function () {
+                    return "Buscando dados...";
+                }
+            },
+            ajax: {
+                url: "/api/Pessoas/Listar",
+                contentType: "application/json; charset=utf-8",
+                data: function (params) {
+                    var query =
+                    {
+                        term: params.term,
+                    };
+                    return query;
+                },
+                processResults: function (result) {
+                    return {
+                        results: $.map(result, function (item) {
+                            return {
+                                id: item.id,
+                                text: item.nome
+                            };
+                        }),
+                    };
+                }
+            }
+        });
+
+        function limpa_formulario() {
+            $("#Nome").val("");
+            $("#Cpf").val("");
+            $("#Pessoa").val("");
+        }
+
+        var pessoaSelecionada = null;
+        $('#Pessoa').on('change', function (e) {
+            pessoaSelecionada = this.value;
+        });
+
+        $("#Buscar").on("click", function (e) {
+            $.ajax({
+                url: "api/Pessoas/SelecionarPorId/" + pessoaSelecionada + "",
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                error: function (ret) {
+                    console.log(ret);
+                },
+                success: function (ret) {
+                    $("#Nome").val(ret.nome);
+                    $("#Cpf").val(ret.cpf);
+                }
+            });
+        });
+
+        $("#Salvar").on("click", function (e) {
+            $.ajax({
+                url: "api/Pessoas/Alterar",
+                type: "PUT",
+                contentType: "application/json; charset=utf-8",
+                data: "{'Id':'3'}",
+                error: function (ret) {
+                    console.log(ret);
+                },
+                success: function (ret) {
+                    $("#Nome").val(ret.nome);
+                    $("#Cpf").val(ret.cpf);
+                }
+            });
+        });
+
+        $("#Excluir").on("click", function (e) {
+            $.ajax({
+                url: "api/Pessoas/Excluir/" + pessoaSelecionada + "",
+                type: "DELETE",
+                contentType: "application/json; charset=utf-8",
+                error: function (ret) {
+                    console.log(ret);
+                },
+                success: function (ret) {
+                    limpa_formulario();
+                }
+            });
+        });
+
+    </script>
+}

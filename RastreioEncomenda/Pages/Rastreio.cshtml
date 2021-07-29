@@ -1,0 +1,87 @@
+﻿@page
+@model RastreioModel
+@{
+    ViewData["Title"] = "Rastreio";
+}
+
+<style>
+
+    .spacing {
+        margin-bottom: 15px;
+    }
+
+    .bar {
+        padding: 15px;
+        border: 1px solid rgba(0,0,0,.125);
+        border-radius: .25rem;
+    }
+</style>
+
+<div class="container spacing">
+    <div class="row bar">
+        <div class="col-sm-3 align-self-center">
+            <div class="form-group">
+                <label for="Cpf" class="form-label">CPF</label>
+                <input class="form-control" id="Cpf">
+            </div>
+        </div>
+        <div class="col align-self-end">
+            <div class="form-group">
+                <button type="button" class="btn btn-secondary">Buscar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">First</th>
+                        <th scope="col">Last</th>
+                        <th scope="col">Handle</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">1</th>
+                        <td>Mark</td>
+                        <td>Otto</td>
+                        <td>A</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">2</th>
+                        <td>Jacob</td>
+                        <td>Thornton</td>
+                        <td>B</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">3</th>
+                        <td>Larry</td>
+                        <td>the Bird</td>
+                        <td>C</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<link href="~/lib/select2/css/select2.min.css" rel="stylesheet" />
+<link href="https://raw.githack.com/ttskch/select2-bootstrap4-theme/master/dist/select2-bootstrap4.css" rel="stylesheet">
+
+@section Scripts
+{
+<script src="~/lib/select2/js/select2.full.min.js"></script>
+
+<script type="text/javascript">
+
+        $("#Pessoa").select2({
+            theme: "bootstrap4"
+        });
+
+</script>
+}
