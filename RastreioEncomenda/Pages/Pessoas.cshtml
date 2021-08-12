@@ -23,7 +23,6 @@
             <div class="form-group">
                 <label for="Pessoa" class="form-label">Pessoa</label>
                 <select class="form-control" id="Pessoa">
-                    <option value="null">Selecione</option>
                 </select>
             </div>
         </div>
@@ -68,16 +67,30 @@
 
     <script type="text/javascript">
 
+        var pessoaSelecionada = null;
+        var onBuscou = false;
+        var onNova = false;
+
+        function limpa_formulario() {
+            $("#Nome").val("");
+            $("#Cpf").val("");
+            $("#Pessoa").val("");
+        }
+
         $("#Pessoa").select2({
             theme: "bootstrap4",
+            placeholder: "Selecione",
             language: {
                 searching: function () {
-                    return "Buscando dados...";
+                    return "Buscando...";
+                },
+                noResults: function () {
+                    return "Nenhum resultado encontrado.";
                 }
             },
             ajax: {
                 url: "/api/Pessoas/Listar",
-                contentType: "application/json; charset=utf-8",
+                contentType: "application/json",
                 data: function (params) {
                     var query =
                     {
@@ -98,58 +111,77 @@
             }
         });
 
-        function limpa_formulario() {
-            $("#Nome").val("");
-            $("#Cpf").val("");
-            $("#Pessoa").val("");
-        }
-
-        var pessoaSelecionada = null;
-        $('#Pessoa').on('change', function (e) {
+        $('#Pessoa').on('change', function () {
             pessoaSelecionada = this.value;
         });
 
-        $("#Buscar").on("click", function (e) {
+        $("#Buscar").on("click", function () {
+            onBuscou = true;
+            onNova = false;
+
             $.ajax({
                 url: "api/Pessoas/SelecionarPorId/" + pessoaSelecionada + "",
                 type: "GET",
-                contentType: "application/json; charset=utf-8",
-                error: function (ret) {
-                    console.log(ret);
-                },
+                contentType: "application/json",
                 success: function (ret) {
                     $("#Nome").val(ret.nome);
                     $("#Cpf").val(ret.cpf);
+                },
+                error: function (ret) {
+                    console.log(ret);
                 }
             });
         });
 
-        $("#Salvar").on("click", function (e) {
-            $.ajax({
-                url: "api/Pessoas/Alterar",
-                type: "PUT",
-                contentType: "application/json; charset=utf-8",
-                data: "{'Id':'3'}",
-                error: function (ret) {
-                    console.log(ret);
-                },
-                success: function (ret) {
-                    $("#Nome").val(ret.nome);
-                    $("#Cpf").val(ret.cpf);
-                }
-            });
+        $("#Nova").on("click", function () {
+            onNova = true;
+            onBuscou = false;
+
+            limpa_formulario();
         });
 
-        $("#Excluir").on("click", function (e) {
+        $("#Salvar").on("click", function () {
+            if (onBuscou == true) {
+                $.ajax({
+                    url: "api/Pessoas/Alterar",
+                    type: "PUT",
+                    dataType: "application/json",
+                    data: { Id: pessoaSelecionada, Nome: $("#Nome").val(), Cpf: $("#Cpf").val() },
+                    success: function (ret) {
+                        $("#Nome").val(ret.nome);
+                        $("#Cpf").val(ret.cpf);
+                    },
+                    error: function (ret) {
+                        console.log(ret);
+                    }
+                });
+            }
+            if (onNova == true) {
+                $.ajax({
+                    url: "api/Pessoas/Incluir",
+                    type: "POST",
+                    dataType: "application/json",
+                    data: { Nome: $("#Nome").val(), Cpf: $("#Cpf").val() },
+                    success: function (ret) {
+                        limpa_formulario();
+                    },
+                    error: function (ret) {
+                        console.log(ret);
+                    }
+                });
+            }
+        });
+
+        $("#Excluir").on("click", function () {
             $.ajax({
                 url: "api/Pessoas/Excluir/" + pessoaSelecionada + "",
                 type: "DELETE",
-                contentType: "application/json; charset=utf-8",
-                error: function (ret) {
-                    console.log(ret);
-                },
+                contentType: "application/json",
                 success: function (ret) {
                     limpa_formulario();
+                },
+                error: function (ret) {
+                    console.log(ret);
                 }
             });
         });

@@ -16,6 +16,9 @@ namespace RastreioEncomenda.Aplicacao
 
             CreateMap<Pessoas, PessoasDTO>();
             CreateMap<PessoasDTO, Pessoas>();
+
+            CreateMap<Encomendas, EncomendasDTO>();
+            CreateMap<EncomendasDTO, Encomendas>();
         }
     }
 }

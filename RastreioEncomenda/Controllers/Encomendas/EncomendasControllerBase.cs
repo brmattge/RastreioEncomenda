@@ -11,13 +11,13 @@ namespace RastreioEncomenda.Servico.Api.Controllers
 {
     [Produces("application/json")]
     [Route("api/[controller]")]
-    public class PessoasControllerBase<Entidade, EntidadeDTO> : Controller
-        where Entidade : PessoasEntidadeBase
-        where EntidadeDTO : PessoasBaseDTO
+    public class EncomendasControllerBase<Entidade, EntidadeDTO> : Controller
+        where Entidade : EncomendasEntidadeBase
+        where EntidadeDTO : EncomendasBaseDTO
     {
-        readonly protected IPessoasAppBase<Entidade, EntidadeDTO> app;
+        readonly protected IEncomendasAppBase<Entidade, EntidadeDTO> app;
 
-        public PessoasControllerBase(IPessoasAppBase<Entidade, EntidadeDTO> app)
+        public EncomendasControllerBase(IEncomendasAppBase<Entidade, EntidadeDTO> app)
         {
             this.app = app;
         }
@@ -28,8 +28,23 @@ namespace RastreioEncomenda.Servico.Api.Controllers
         {
             try
             {
-                var pessoas = app.Listar();
-                return new OkObjectResult(pessoas);
+                var encomendas = app.Listar();
+                return new OkObjectResult(encomendas);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("ListarPorId/{IdPessoa}")]
+        public IActionResult ListarPorId(int IdPessoa)
+        {
+            try
+            {
+                var encomendas = app.ListarPor(IdPessoa);
+                return new OkObjectResult(encomendas);
             }
             catch (Exception ex)
             {
@@ -43,8 +58,8 @@ namespace RastreioEncomenda.Servico.Api.Controllers
         {
             try
             {
-                var pessoa = app.SelecionarPorId(Id);
-                return new OkObjectResult(pessoa);
+                var encomenda = app.SelecionarPorId(Id);
+                return new OkObjectResult(encomenda);
             }
             catch (Exception ex)
             {

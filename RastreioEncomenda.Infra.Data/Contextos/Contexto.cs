@@ -13,6 +13,7 @@ namespace RastreioEncomenda.Infra.Data.Contextos
     {
         public DbSet<Localidades> Localidades { get; set; }
         public DbSet<Pessoas> Pessoas { get; set; }
+        public DbSet<Encomendas> Encomendas { get; set; }
 
         public IDbContextTransaction Transaction { get; private set; }
 
@@ -79,6 +80,7 @@ namespace RastreioEncomenda.Infra.Data.Contextos
 
             modelBuilder.ApplyConfiguration(new LocalidadesMap());
             modelBuilder.ApplyConfiguration(new PessoasMap());
+            modelBuilder.ApplyConfiguration(new EncomendasMap());
 
         }
     }

@@ -22,18 +22,15 @@
     <div class="row bar">
         <div class="col-sm-3 align-self-center">
             <div class="form-group">
-                <label for="Pessoa" class="form-label">Pessoa</label>
-                <select class="form-control" id="Pessoa">
-                    <option data-select2-id="null">Selecione</option>
-                    <option data-select2-id="Enviado">Enviado</option>
-                    <option data-select2-id="Entregue">Entregue</option>
+                <label for="Encomenda" class="form-label">Encomenda</label>
+                <select class="form-control" id="Encomenda">
                 </select>
             </div>
         </div>
         <div class="col align-self-end">
             <div class="form-group">
-                <button type="button" class="btn btn-secondary">Buscar</button>
-                <button type="button" class="btn btn-primary">Novo</button>
+                <button type="button" class="btn btn-secondary" id="Buscar">Buscar</button>
+                <button type="button" class="btn btn-primary" id="Novo">Novo</button>
             </div>
         </div>
     </div>
@@ -43,8 +40,15 @@
     <div class="row">
         <div class="col-sm-3">
             <div class="form-group">
-                <label for="Pedido" class="form-label">Pedido</label>
-                <input class="form-control" id="Pedido">
+                <label for="Pessoa" class="form-label">Pessoa</label>
+                <select class="form-control" id="Pessoa">
+                </select>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label for="Nome" class="form-label">Nome</label>
+                <input class="form-control" id="Nome">
             </div>
         </div>
         <div class="col-sm-3">
@@ -101,7 +105,8 @@
         </div>
         <div class="col align-self-end">
             <div class="form-group">
-                <button type="button" class="btn btn-primary">Salvar</button>
+                <button type="button" class="btn btn-primary" id="Salvar">Salvar</button>
+                <button type="button" class="btn btn-danger" id="Excluir">Excluir</button>
             </div>
         </div>
     </div>
@@ -116,64 +121,310 @@
     
     <script type="text/javascript">
 
+        var encomendaSelecionada = null;
+        var pessoaSelecionada = null;
+        var onBuscou = false;
+        var onNova = false;
+
+        function limpa_formulario() {
+            $("#Pessoa").val('').trigger('change');
+            $("#Nome").val("");
+            $("#Cep").val("");
+            $("#Logradouro").val("");
+            $("#Numero").val("");
+            $("#Complemento").val("");
+            $("#Bairro").val("");
+            $("#Cidade").val("");
+            $("#Estado").val("");
+            $("#Status").val('').trigger('change');
+        }
+
+        function limpa_formulario_cep() {
+            $("#Cep").val("");
+            $("#Logradouro").val("");
+            $("#Bairro").val("");
+            $("#Cidade").val("");
+            $("#Estado").val("");
+        }
+
+        $("#Pessoa").select2({
+            theme: "bootstrap4",
+            placeholder: "Selecione",
+        });
+
+        $("#Encomenda").select2({
+            theme: "bootstrap4",
+            placeholder: "Selecione",
+            language: {
+                searching: function () {
+                    return "Buscando...";
+                },
+                noResults: function () {
+                    return "Nenhum resultado encontrado.";
+                }
+            },
+            ajax: {
+                url: "/api/Encomendas/Listar",
+                contentType: "application/json",
+                data: function (params) {
+                    var query =
+                    {
+                        term: params.term,
+                    };
+                    return query;
+                },
+                processResults: function (result) {
+                    return {
+                        results: $.map(result, function (item) {
+                            return {
+                                id: item.id,
+                                text: item.nome
+                            };
+                        }),
+                    };
+                }
+            }
+        });
+
         $("#Status").select2({
             theme: "bootstrap4",
             minimumResultsForSearch: -1
         });
 
-        $("#Pessoa").select2({
-            theme: "bootstrap4"
+        $('#Encomenda').on('change', function () {
+            encomendaSelecionada = this.value;
         });
 
-        $(document).ready(function () {
+        $('#Pessoa').on('change', function () {
+            pessoaSelecionada = this.value;
+        });
 
-            function limpa_formulário_cep() {
-                $("#Logradouro").val("");
-                $("#Bairro").val("");
-                $("#Cidade").val("");
-                $("#Estado").val("");
-            }
+        $("#Buscar").on("click", function () {
+            onBuscou = true;
+            onNova = false;
 
-            $("#Cep").blur(function () {
-                var cep = $(this).val().replace(/\D/g, '');
-                if (cep != "") {
-
-                    var validacep = /^[0-9]{8}$/;
-
-                    if (validacep.test(cep)) {
-
-                        $("#Logradouro").val("...");
-                        $("#Bairro").val("...");
-                        $("#Cidade").val("...");
-                        $("#Estado").val("...");
-
-                        $.ajax({
-                            url: "api/Localidades/SelecionarPorId/" + cep + "",
-                            type: "GET",
-                            error: function (ret) {
-                                console.log(ret);
-                                limpa_formulário_cep();
-                                alert("CEP não encontrado.");
-                            },
-                            success: function (ret) {
-                                console.log(ret);
-                                $("#Logradouro").val(ret.logradouro);
-                                $("#Bairro").val(ret.bairro);
-                                $("#Cidade").val(ret.cidade);
-                                $("#Estado").val(ret.estado);
-                            }
-                        });
+            $('#Pessoa').select2({
+                theme: "bootstrap4",
+                placeholder: "Selecione",
+                ajax: {
+                    url: "/api/Pessoas/Listar",
+                    contentType: "application/json",
+                    data: function (params) {
+                        var query =
+                        {
+                            term: params.term,
+                        };
+                        return query;
+                    },
+                    processResults: function (result) {
+                        return {
+                            results: $.map(result, function (item) {
+                                return {
+                                    id: item.id,
+                                    text: item.nome
+                                };
+                            }),
+                        };
                     }
-                    else {
-                        limpa_formulário_cep();
-                        alert("Formato de CEP inválido.");
-                    }
-                }
-                else {
-                    limpa_formulário_cep();
                 }
             });
 
+            $.ajax({
+                url: "api/Encomendas/SelecionarPorId/" + encomendaSelecionada + "",
+                type: "GET",
+                contentType: "application/json",
+                success: function (ret) {
+                    var selecionaPessoa = $('#Pessoa');
+                    $.ajax({
+                        type: 'GET',
+                        url: '/api/Pessoas/SelecionarPorId/' + ret.idPessoa
+                    }).then(function (data) {
+                        var option = new Option(data.nome, data.id, true, true);
+                        selecionaPessoa.append(option).trigger('change');
+
+                        selecionaPessoa.trigger({
+                            type: 'select2:select',
+                            params: {
+                                data: data
+                            }
+                        });
+                    });
+
+                    $("#Nome").val(ret.nome);
+                    $("#Cep").val(ret.cep);
+                    $("#Logradouro").val(ret.logradouro);
+                    $("#Numero").val(ret.numero);
+                    $("#Complemento").val(ret.complemento);
+                    $("#Bairro").val(ret.bairro);
+                    $("#Cidade").val(ret.cidade);
+                    $("#Estado").val(ret.estado);
+                    $('#Status').val(ret.status);
+                    $('#Status').trigger('change');
+                },
+                error: function (ret) {
+                    console.log(ret);
+                }
+            });
+        });
+
+        $("#Novo").on("click", function () {
+            onNova = true;
+            onBuscou = false;
+
+            limpa_formulario();
+            limpa_formulario_cep();
+
+            $("#Pessoa").select2({
+                theme: "bootstrap4",
+                placeholder: "Selecione",
+                language: {
+                    searching: function () {
+                        return "Buscando...";
+                    },
+                    noResults: function () {
+                        return "Nenhum resultado encontrado.";
+                    }
+                },
+                ajax: {
+                    url: "/api/Pessoas/Listar",
+                    contentType: "application/json",
+                    data: function (params) {
+                        var query =
+                        {
+                            term: params.term,
+                        };
+                        return query;
+                    },
+                    processResults: function (result) {
+                        return {
+                            results: $.map(result, function (item) {
+                                return {
+                                    id: item.id,
+                                    text: item.nome
+                                };
+                            }),
+                        };
+                    }
+                }
+            });
+        });
+
+        $("#Cep").blur(function () {
+            var cep = $(this).val().replace(/\D/g, '');
+            if (cep != "") {
+
+                var validacep = /^[0-9]{8}$/;
+
+                if (validacep.test(cep)) {
+
+                    $("#Logradouro").val("...");
+                    $("#Bairro").val("...");
+                    $("#Cidade").val("...");
+                    $("#Estado").val("...");
+
+                    $.ajax({
+                        url: "api/Localidades/SelecionarPorId/" + cep + "",
+                        type: "GET",
+                        error: function (ret) {
+                            console.log(ret);
+                            limpa_formulário_cep();
+                            alert("CEP não encontrado.");
+                        },
+                        success: function (ret) {
+                            console.log(ret);
+                            $("#Logradouro").val(ret.logradouro);
+                            $("#Bairro").val(ret.bairro);
+                            $("#Cidade").val(ret.cidade);
+                            $("#Estado").val(ret.estado);
+                        }
+                    });
+                }
+                else {
+                    limpa_formulario_cep();
+                    alert("Formato de CEP inválido.");
+                }
+            }
+            else {
+                limpa_formulario_cep();
+            }
+        });
+
+        $("#Salvar").on("click", function () {
+            if (onBuscou == true) {
+                $.ajax({
+                    url: "api/Encomendas/Alterar",
+                    type: "PUT",
+                    dataType: "application/json",
+                    data: {
+                        Id: encomendaSelecionada,
+                        IdPessoa: $("#Pessoa").val(),
+                        Nome: $("#Nome").val(),
+                        Cep: $("#Cep").val(),
+                        Logradouro: $("#Logradouro").val(),
+                        Numero: $("#Numero").val(),
+                        Complemento: $("#Complemento").val(),
+                        Bairro: $("#Bairro").val(),
+                        Cidade: $("#Cidade").val(),
+                        Estado: $("#Estado").val(),
+                        Status: $("#Status").val()
+                    },
+                    success: function (ret) {
+                        $("#Nome").val(ret.nome);
+                        $("#Cpf").val(ret.cpf);
+                    },
+                    error: function (ret) {
+                        console.log(ret);
+                    }
+                });
+            }
+            if (onNova == true) {
+                $.ajax({
+                    url: "api/Encomendas/Incluir",
+                    type: "POST",
+                    dataType: "application/json",
+                    data: {
+                        IdPessoa: pessoaSelecionada,
+                        Nome: $("#Nome").val(),
+                        Cep: $("#Cep").val(),
+                        Logradouro: $("#Logradouro").val(),
+                        Numero: $("#Numero").val(),
+                        Complemento: $("#Complemento").val(),
+                        Bairro: $("#Bairro").val(),
+                        Cidade: $("#Cidade").val(),
+                        Estado: $("#Estado").val(),
+                        Status: $("#Status").val()
+                    },
+                    success: function (ret) {
+                        limpa_formulario();
+                        limpa_formulario_cep();
+                    },
+                    error: function (ret) {
+                        if (ret.status == 200) {
+                            limpa_formulario();
+                            limpa_formulario_cep();
+                        }
+                        else {
+                            console.log(ret);
+                        }
+                    }
+                });
+            }
+        });
+
+        $("#Excluir").on("click", function () {
+            if (onBuscou == true) {
+                $.ajax({
+                    url: "api/Encomendas/Excluir/" + encomendaSelecionada + "",
+                    type: "DELETE",
+                    contentType: "application/json",
+                    success: function (ret) {
+                        limpa_formulario();
+                    },
+                    error: function (ret) {
+                        console.log(ret);
+                    }
+                });
+            }
         });
 
     </script>

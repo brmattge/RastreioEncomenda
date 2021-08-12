@@ -22,6 +22,9 @@ namespace RastreioEncomenda.Infra.IoC
             svcCollection.AddScoped(typeof(IPessoasAppBase<,>), typeof(PessoasServicoAppBase<,>));
             svcCollection.AddScoped<IPessoasApp, PessoasApp>();
 
+            svcCollection.AddScoped(typeof(IEncomendasAppBase<,>), typeof(EncomendasServicoAppBase<,>));
+            svcCollection.AddScoped<IEncomendasApp, EncomendasApp>();
+
             //Domínio
             svcCollection.AddScoped(typeof(ILocalidadesServicoBase<>), typeof(LocalidadesServicoBase<>));
             svcCollection.AddScoped<ILocalidadesServico, LocalidadesServico>();
@@ -29,12 +32,18 @@ namespace RastreioEncomenda.Infra.IoC
             svcCollection.AddScoped(typeof(IPessoasServicoBase<>), typeof(PessoasServicoBase<>));
             svcCollection.AddScoped<IPessoasServico, PessoasServico>();
 
+            svcCollection.AddScoped(typeof(IEncomendasServicoBase<>), typeof(EncomendasServicoBase<>));
+            svcCollection.AddScoped<IEncomendasServico, EncomendasServico>();
+
             //Repositório
             svcCollection.AddScoped(typeof(ILocalidadesRepositorioBase<>), typeof(LocalidadesRepositorioBase<>));
             svcCollection.AddScoped<ILocalidadesRepositorio, LocalidadesRepositorio>();
 
             svcCollection.AddScoped(typeof(IPessoasRepositorioBase<>), typeof(PessoasRepositorioBase<>));
             svcCollection.AddScoped<IPessoasRepositorio, PessoasRepositorio>();
+
+            svcCollection.AddScoped(typeof(IEncomendasRepositorioBase<>), typeof(EncomendasRepositorioBase<>));
+            svcCollection.AddScoped<IEncomendasRepositorio, EncomendasRepositorio>();
         }
     }
 }

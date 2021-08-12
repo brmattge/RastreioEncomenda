@@ -21,13 +21,14 @@
     <div class="row bar">
         <div class="col-sm-3 align-self-center">
             <div class="form-group">
-                <label for="Cpf" class="form-label">CPF</label>
-                <input class="form-control" id="Cpf">
+                <label for="Pessoa" class="form-label">Pessoa</label>
+                <select class="form-control" id="Pessoa">
+                </select>
             </div>
         </div>
         <div class="col align-self-end">
             <div class="form-group">
-                <button type="button" class="btn btn-secondary">Buscar</button>
+                <button type="button" class="btn btn-secondary" id="Buscar">Buscar</button>
             </div>
         </div>
     </div>
@@ -36,34 +37,21 @@
 <div class="container">
     <div class="row">
         <div class="col-sm-12">
-            <table class="table">
+            <table class="table" id="table">
                 <thead>
                     <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">First</th>
-                        <th scope="col">Last</th>
-                        <th scope="col">Handle</th>
+                        <th width="100">Nome</th>
+                        <th width="100">Cep</th>
+                        <th width="100">Logradouro</th>
+                        <th width="100">Numero</th>
+                        <th width="140">Complemento</th>
+                        <th width="100">Bairro</th>
+                        <th width="100">Cidade</th>
+                        <th width="100">Estado</th>
+                        <th width="100">Status</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <th scope="row">1</th>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>A</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">2</th>
-                        <td>Jacob</td>
-                        <td>Thornton</td>
-                        <td>B</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">3</th>
-                        <td>Larry</td>
-                        <td>the Bird</td>
-                        <td>C</td>
-                    </tr>
                 </tbody>
             </table>
         </div>
@@ -75,13 +63,77 @@
 
 @section Scripts
 {
-<script src="~/lib/select2/js/select2.full.min.js"></script>
+    <script src="~/lib/select2/js/select2.full.min.js"></script>
 
-<script type="text/javascript">
+    <script type="text/javascript">
+
+        var pessoaSelecionada = null;
 
         $("#Pessoa").select2({
-            theme: "bootstrap4"
+            theme: "bootstrap4",
+            placeholder: "Selecione",
+            language: {
+                searching: function () {
+                    return "Buscando...";
+                },
+                noResults: function () {
+                    return "Nenhum resultado encontrado.";
+                }
+            },
+            ajax: {
+                url: "/api/Pessoas/Listar",
+                contentType: "application/json",
+                data: function (params) {
+                    var query =
+                    {
+                        term: params.term,
+                    };
+                    return query;
+                },
+                processResults: function (result) {
+                    return {
+                        results: $.map(result, function (item) {
+                            return {
+                                id: item.id,
+                                text: item.nome
+                            };
+                        }),
+                    };
+                }
+            }
         });
 
-</script>
+        $('#Pessoa').on('change', function () {
+            pessoaSelecionada = this.value;
+        });
+
+        $("#Buscar").on("click", function () {
+            $.ajax({
+                url: "api/Encomendas/ListarPorId/" + pessoaSelecionada + "",
+                type: "GET",
+                contentType: "application/json",
+                success: function (ret) {
+                    var table = $("#table tbody");
+                    $.each(ret, function (idx, elem) {
+                        table.append(
+                            "<tr><td>"
+                            + elem.nome + "</td><td>"
+                            + elem.cep + "</td><td>"
+                            + elem.logradouro + "</td><td>"
+                            + elem.numero + "</td><td>"
+                            + elem.complemento + "</td><td>"
+                            + elem.bairro + "</td><td>"
+                            + elem.cidade + "</td><td>"
+                            + elem.estado + "</td><td>"
+                            + elem.status + "</td></tr>"
+                        );
+                    });
+                },
+                error: function (ret) {
+                    console.log(ret);
+                }
+            });
+        });
+
+    </script>
 }
