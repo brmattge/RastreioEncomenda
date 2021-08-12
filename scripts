@@ -1,0 +1,48 @@
+CREATE TABLE public."Encomendas"
+(
+    "Id" integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
+    "IdPessoa" integer,
+    "Nome" character varying COLLATE pg_catalog."default",
+    "CEP" character varying COLLATE pg_catalog."default",
+    "Logradouro" character varying COLLATE pg_catalog."default",
+    "Numero" character varying COLLATE pg_catalog."default",
+    "Complemento" character varying COLLATE pg_catalog."default",
+    "Bairro" character varying COLLATE pg_catalog."default",
+    "Cidade" character varying COLLATE pg_catalog."default",
+    "Estado" character varying COLLATE pg_catalog."default",
+    "Status" character varying COLLATE pg_catalog."default",
+    CONSTRAINT "Encomendas_pkey" PRIMARY KEY ("Id")
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE public."Encomendas"
+    OWNER to postgres;
+    
+CREATE TABLE public."Localidades"
+(
+    "CEP" character varying COLLATE pg_catalog."default" NOT NULL,
+    "Logradouro" character varying COLLATE pg_catalog."default",
+    "Bairro" character varying COLLATE pg_catalog."default",
+    "Cidade" character varying COLLATE pg_catalog."default",
+    "Estado" character varying COLLATE pg_catalog."default",
+    CONSTRAINT "Localidades_pkey" PRIMARY KEY ("CEP")
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE public."Localidades"
+    OWNER to postgres;
+    
+CREATE TABLE public."Pessoas"
+(
+    "Id" integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
+    "Nome" character varying COLLATE pg_catalog."default",
+    "CPF" character varying COLLATE pg_catalog."default",
+    CONSTRAINT "Pessoas_pkey" PRIMARY KEY ("Id")
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE public."Pessoas"
+    OWNER to postgres;
